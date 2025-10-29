@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Attendance System</title>
+    <script src="/config.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+</head>
+<body>
+    <div style="text-align: center; padding: 50px;">
+        <h1>Loading...</h1>
+        <p>Redirecting to appropriate page...</p>
+    </div>
+
+    <script>
+        // Check authentication and redirect
+        async function redirect() {
+            const isAuth = await auth.checkAuth();
+            
+            if (!isAuth) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Redirect based on role
+            if (auth.isAdmin()) {
+                window.location.href = '/admin/dashboard.html';
+            } else if (auth.isUser()) {
+                window.location.href = '/user/dashboard.html';
+            } else {
+                window.location.href = '/login.html';
+            }
+        }
+
+        redirect();
+    </script>
+</body>
+</html>
