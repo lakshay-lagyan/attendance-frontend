@@ -34,9 +34,12 @@ const API_CONFIG = {
         // Enrollment
         SUBMIT_REQUEST: '/api/enrollment/request',
         ENROLL: '/api/enrollment/enroll',
+        VALIDATE_IMAGE: '/api/enrollment/validate-image',
         
         // Face
-        RECOGNIZE: '/api/face/recognize'
+        RECOGNIZE: '/api/face/recognize',
+        RECOGNIZE_CROWD: '/api/face/recognize/crowd',
+        RESET_CACHE: '/api/face/recognize/reset-cache'
     },
     
     // Request options

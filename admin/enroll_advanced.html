@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Face Enrollment - Maximum Accuracy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1100px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .header h2 { font-size: 32px; margin-bottom: 10px; }
+        .header .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .content { padding: 30px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .camera-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        #video {
+            width: 100%;
+            display: block;
+            min-height: 480px;
+        }
+        
+        canvas { display: none; }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .face-box {
+            position: absolute;
+            border: 3px solid #4299e1;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(66, 153, 225, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .face-box.good { border-color: #48bb78; }
+        .face-box.bad { border-color: #e53e3e; }
+        
+        .quality-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        
+        .metric-bar {
+            height: 8px;
+            background: #2d3748;
+            border-radius: 10px;
+            overflow: hidden;
+            flex: 1;
+            margin: 0 15px;
+        }
+        
+        .metric-fill {
+            height: 100%;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .metric-fill.excellent { background: #48bb78; }
+        .metric-fill.good { background: #4299e1; }
+        .metric-fill.poor { background: #e53e3e; }
+        
+        .capture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .capture-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 3px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .capture-item img {
+            width: 100%;
+            display: block;
+        }
+        
+        .capture-item.excellent { border-color: #48bb78; }
+        .capture-item.good { border-color: #4299e1; }
+        .capture-item.poor { border-color: #f6c23e; }
+        
+        .capture-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .instruction-panel {
+            background: #edf2f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .instruction-panel h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .instruction-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .instruction-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .instruction-icon {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        #statusMsg {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-info { background: #bee3f8; color: #2c5282; }
+        .status-success { background: #c6f6d5; color: #276749; }
+        .status-error { background: #fed7d7; color: #9b2c2c; }
+        .status-warning { background: #feebc8; color: #7c2d12; }
+        
+        .stats-bar {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat-item h3 {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-item p {
+            color: #718096;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Face Enrollment</h2>
+        </div>
+        
+        <div class="content">
+            <form id="enrollForm">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" placeholder="john@company.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" name="password" placeholder="Minimum 6 characters" required minlength="6">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" placeholder="Engineering">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1 234 567 8900">
+                    </div>
+                </div>
+                
+                <div class="instruction-panel">
+                    <h4>Capture Instructions:</h4>
+                    <div class="instruction-list">
+                        <div class="instruction-item">
+                            <div class="instruction-icon">1</div>
+                            <span>Face camera directly</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-icon">2</div>
+                            <span>Good lighting essential</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-icon">3</div>
+                            <span>Remove glasses initially</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-icon">4</div>
+                            <span>Vary angles & expressions</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-icon">5</div>
+                            <span>Stay still during capture</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-icon">6</div>
+                            <span>Minimum 5 quality photos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="camera-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    
+                    <div class="overlay" id="overlay">
+                        <div class="quality-overlay">
+                            <h4 style="margin-bottom: 15px;">Real-Time Quality Analysis</h4>
+                            
+                            <div class="metric-row">
+                                <span style="width: 100px;">Sharpness:</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="sharpnessFill" style="width: 0%"></div>
+                                </div>
+                                <span id="sharpnessText" style="width: 60px; text-align: right;">0%</span>
+                            </div>
+                            
+                            <div class="metric-row">
+                                <span style="width: 100px;">Brightness:</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="brightnessFill" style="width: 0%"></div>
+                                </div>
+                                <span id="brightnessText" style="width: 60px; text-align: right;">0%</span>
+                            </div>
+                            
+                            <div class="metric-row">
+                                <span style="width: 100px;">Contrast:</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="contrastFill" style="width: 0%"></div>
+                                </div>
+                                <span id="contrastText" style="width: 60px; text-align: right;">0%</span>
+                            </div>
+                            
+                            <div class="metric-row">
+                                <span style="width: 100px;">Overall:</span>
+                                <div class="metric-bar">
+                                    <div class="metric-fill" id="overallFill" style="width: 0%"></div>
+                                </div>
+                                <span id="overallText" style="width: 60px; text-align: right;">0%</span>
+                            </div>
+                            
+                            <p id="qualityFeedback" style="margin-top: 15px; font-size: 14px; color: #4299e1;">
+                                Position your face in view...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <h3 id="captureCount">0</h3>
+                        <p>Captured</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="qualityCount">0</h3>
+                        <p>High Quality</p>
+                    </div>
+                    <div class="stat-item">
+                        <h3 id="avgQuality">0%</h3>
+                        <p>Avg Quality</p>
+                    </div>
+                </div>
+                
+                <div class="capture-grid" id="captureGrid"></div>
+                
+                <div class="btn-group">
+                    <button type="button" class="btn-primary" id="captureBtn"> Capture Image</button>
+                    <button type="button" class="btn-success" id="retakeBtn" style="display:none;">🔄 Retake Last</button>
+                    <button type="submit" class="btn-success" id="submitBtn" disabled> Enroll (0/5)</button>
+                    <button type="button" class="btn-danger" onclick="window.location.href='/admin/dashboard'"> Cancel</button>
+                </div>
+            </form>
+            
+            <div id="statusMsg"></div>
+        </div>
+    </div>
+    
+    <script src="/config.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const captureGrid = document.getElementById('captureGrid');
+        
+        let captures = [];
+        let isProcessing = false;
+        let qualityCheckInterval;
+        
+        // Start camera
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    }
+                });
+                video.srcObject = stream;
+                
+                // Start real-time quality monitoring
+                startQualityMonitoring();
+            } catch (err) {
+                showStatus(' Camera access denied: ' + err.message, 'error');
+            }
+        }
+        
+        // Real-time quality monitoring
+        async function startQualityMonitoring() {
+            qualityCheckInterval = setInterval(async () => {
+                if (isProcessing) return;
+                
+                // Capture current frame
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                
+                canvas.toBlob(async (blob) => {
+                    if (!blob) return;
+                    
+                    try {
+                        // Validate with backend
+                        const formData = new FormData();
+                        formData.append('image', blob, 'frame.jpg');
+                        
+                        const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/validate-image`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        updateQualityUI(data);
+                    } catch (err) {
+                        console.error('Quality check error:', err);
+                    }
+                }, 'image/jpeg', 0.8);
+            }, 1000); // Check every second
+        }
+        
+        function updateQualityUI(data) {
+            const metrics = data.metrics || {};
+            
+            // Update bars
+            updateMetric('sharpness', metrics.sharpness || 0);
+            updateMetric('brightness', metrics.brightness || 0);
+            updateMetric('contrast', metrics.contrast || 0);
+            updateMetric('overall', data.quality_score || 0);
+            
+            // Update feedback
+            const feedback = document.getElementById('qualityFeedback');
+            if (data.valid) {
+                feedback.textContent = ' Perfect! Ready to capture.';
+                feedback.style.color = '#48bb78';
+                captureBtn.disabled = false;
+            } else {
+                const issues = data.issues || [];
+                feedback.textContent = '⚠️ ' + (issues[0] || 'Adjust position');
+                feedback.style.color = '#f6c23e';
+                captureBtn.disabled = issues.length > 2; // Disable if too many issues
+            }
+        }
+        
+        function updateMetric(name, value) {
+            const fill = document.getElementById(`${name}Fill`);
+            const text = document.getElementById(`${name}Text`);
+            
+            const percent = Math.round(value * 100);
+            fill.style.width = percent + '%';
+            text.textContent = percent + '%';
+            
+            // Color coding
+            fill.className = 'metric-fill';
+            if (value >= 0.7) fill.classList.add('excellent');
+            else if (value >= 0.4) fill.classList.add('good');
+            else fill.classList.add('poor');
+        }
+        
+        // Capture image
+        captureBtn.addEventListener('click', async () => {
+            if (isProcessing) return;
+            
+            isProcessing = true;
+            captureBtn.disabled = true;
+            captureBtn.textContent = ' Processing...';
+            
+            // Capture frame
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            
+            // Validate quality
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('image', blob, 'capture.jpg');
+                
+                try {
+                    const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/validate-image`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.quality_score >= 0.5) {
+                        // Good quality - add to captures
+                        captures.push({
+                            dataUrl: dataUrl,
+                            quality: data.quality_score,
+                            metrics: data.metrics
+                        });
+                        
+                        displayCapture(dataUrl, data.quality_score);
+                        updateStats();
+                        showStatus(` Image ${captures.length} captured (Quality: ${Math.round(data.quality_score * 100)}%)`, 'success');
+                        
+                        if (captures.length >= 5) {
+                            submitBtn.disabled = false;
+                        }
+                        
+                        retakeBtn.style.display = 'block';
+                    } else {
+                        showStatus('⚠️ Quality too low. Please improve lighting and focus. Try again.', 'warning');
+                    }
+                } catch (err) {
+                    showStatus(' Validation failed: ' + err.message, 'error');
+                }
+                
+                isProcessing = false;
+                captureBtn.disabled = false;
+                captureBtn.textContent = ' Capture Image';
+            }, 'image/jpeg', 0.95);
+        });
+        
+        // Display captured image
+        function displayCapture(dataUrl, quality) {
+            const div = document.createElement('div');
+            div.className = 'capture-item';
+            
+            const qualityClass = quality >= 0.7 ? 'excellent' : quality >= 0.5 ? 'good' : 'poor';
+            div.classList.add(qualityClass);
+            
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            div.appendChild(img);
+            
+            const badge = document.createElement('div');
+            badge.className = 'capture-badge';
+            badge.textContent = Math.round(quality * 100) + '%';
+            div.appendChild(badge);
+            
+            captureGrid.appendChild(div);
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('captureCount').textContent = captures.length;
+            
+            const highQuality = captures.filter(c => c.quality >= 0.7).length;
+            document.getElementById('qualityCount').textContent = highQuality;
+            
+            const avgQuality = captures.length > 0 
+                ? captures.reduce((sum, c) => sum + c.quality, 0) / captures.length 
+                : 0;
+            document.getElementById('avgQuality').textContent = Math.round(avgQuality * 100) + '%';
+            
+            submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+        }
+        
+        // Retake last image
+        retakeBtn.addEventListener('click', () => {
+            if (captures.length > 0) {
+                captures.pop();
+                captureGrid.removeChild(captureGrid.lastChild);
+                updateStats();
+                
+                if (captures.length < 5) {
+                    submitBtn.disabled = true;
+                }
+                
+                if (captures.length === 0) {
+                    retakeBtn.style.display = 'none';
+                }
+                
+                showStatus('Last image removed', 'info');
+            }
+        });
+        
+        // Submit enrollment
+        document.getElementById('enrollForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (captures.length < 3) {
+                showStatus(' Minimum 3 images required', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = ' Processing Enrollment...';
+            showStatus(' Processing enrollment... This may take 10-30 seconds.', 'info');
+            
+            try {
+                const formData = new FormData();
+                formData.append('name', document.getElementById('name').value);
+                formData.append('email', document.getElementById('email').value);
+                formData.append('password', document.getElementById('password').value);
+                formData.append('department', document.getElementById('department').value);
+                formData.append('phone', document.getElementById('phone').value);
+                
+                // Convert captures to blobs
+                for (let i = 0; i < captures.length; i++) {
+                    const blob = await fetch(captures[i].dataUrl).then(r => r.blob());
+                    formData.append('files', blob, `capture_${i}.jpg`);
+                }
+                
+                const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/enroll`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showStatus(
+                        ` ${data.name} enrolled successfully!\n` +
+                        ` ${data.photos_used} photos processed | ` +
+                        ` Consistency: ${Math.round(data.consistency_score * 100)}% | ` +
+                        `Avg Quality: ${Math.round(data.avg_quality * 100)}%`,
+                        'success'
+                    );
+                    
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard.html';
+                    }, 3000);
+                } else {
+                    showStatus(' ' + data.message, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+                }
+            } catch (err) {
+                showStatus(' Enrollment failed: ' + err.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+            }
+        });
+        
+        function showStatus(message, type) {
+            const statusMsg = document.getElementById('statusMsg');
+            statusMsg.textContent = message;
+            statusMsg.className = `status-${type}`;
+            statusMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            startCamera();
+        });
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            if (qualityCheckInterval) {
+                clearInterval(qualityCheckInterval);
+            }
+        });
+    </script>
+</body>
+</html>

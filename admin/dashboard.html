@@ -387,8 +387,8 @@
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fas fa-user-shield"></i> Admin Panel
+        <div class="sidebar-brand" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <i class="fas fa-brain"></i> AI Attendance
         </div>
         <ul class="nav flex-column" style="list-style: none;">
             <li class="nav-item">
@@ -398,9 +398,16 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/reg">
-                    <i class="fas fa-fw fa-user-plus"></i>
-                    <span>Enroll User</span>
+                <a class="nav-link" href="/admin/enroll_advanced.html">
+                    <i class="fas fa-fw fa-brain"></i>
+                    <span>Advanced Enroll</span>
+                    <span style="background: #48bb78; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">NEW</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/enroll.html">
+                    <i class="fas fa-fw fa-camera"></i>
+                    <span>Quick Enroll</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -435,29 +442,109 @@
             <h4 style="margin: 0; color: var(--dark);">Dashboard</h4>
             <div class="user-info">
                 <div>
-                    <div style="font-weight: 600;">{{ admin.name }}</div>
+                    <div style="font-weight: 600;">Admin User</div>
                     <small style="color: #858796;">Administrator</small>
                 </div>
                 <div class="user-avatar">
-                    {% if admin.profile_image %}
-                    <img src="data:image/jpeg;base64,{{ admin.profile_image }}"
-                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                    {% else %}
-                    {{ admin.name[0].upper() }}
-                    {% endif %}
+                    <i class="fas fa-user-shield"></i>
                 </div>
             </div>
         </nav>
 
+        <!-- System Status Banner -->
+        <!-- <div style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                <div>
+                    <strong style="display: block; font-size: 1.1rem;">System Online - Advanced AI Active</strong>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="width: 8px; height: 8px; background: white; border-radius: 50%; animation: pulse 2s infinite;"></span>
+                <span style="font-size: 0.875rem; font-weight: 700; letter-spacing: 1px;">LIVE</span>
+            </div>
+        </div> -->
+
+        <!-- Quick Actions -->
+        <!-- <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 2rem;">
+            <h5 style="color: white; margin-bottom: 1.5rem; font-weight: 700;">Quick Actions</h5>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                <a href="/admin/enroll_advanced.html" style="background: white; padding: 1.5rem; border-radius: 12px; text-align: center; text-decoration: none; color: #667eea; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'">
+                    <i class="fas fa-brain" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <strong style="display: block; margin-bottom: 0.25rem;">Advanced Enroll</strong>
+                    <small style="color: #718096; display: block;">Multi-image </small>
+                </a>
+                <a href="/admin/enroll.html" style="background: white; padding: 1.5rem; border-radius: 12px; text-align: center; text-decoration: none; color: #48bb78; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'">
+                    <i class="fas fa-camera" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <strong style="display: block; margin-bottom: 0.25rem;">Quick Enroll</strong>
+                    <small style="color: #718096; display: block;">3D scan</small>
+                </a>
+                <a href="#" onclick="showRequestsModal(); return false;" style="background: white; padding: 1.5rem; border-radius: 12px; text-align: center; text-decoration: none; color: #f6c23e; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'">
+                    <i class="fas fa-bell" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <strong style="display: block; margin-bottom: 0.25rem;">View Requests</strong>
+                    <small style="color: #718096; display: block;">Approvals</small>
+                </a>
+                <a href="#" onclick="location.reload(); return false;" style="background: white; padding: 1.5rem; border-radius: 12px; text-align: center; text-decoration: none; color: #e53e3e; transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'">
+                    <i class="fas fa-sync-alt" style="font-size: 2.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <strong style="display: block; margin-bottom: 0.25rem;">Refresh Data</strong>
+                    <small style="color: #718096; display: block;">Update all</small>
+                </a>
+            </div>
+        </div> -->
+
         <!-- Content -->
-        <div class="container-fluid" style="padding: 1.5rem;">
+        <!-- <div class="container-fluid" style="padding: 1.5rem; background: #f8f9fc;"> -->
+            <!-- AI Performance Metrics -->
+            <!-- <div class="row mb-4">
+                <div class="col-12">
+                    <div class="data-card">
+                        <div class="data-card-header">
+                            <i class="fas fa-tachometer-alt"></i> AI System Performance
+                        </div>
+                        <div class="data-card-body">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-weight: 600; color: #2d3748;">Face Detection Rate</span>
+                                        <span style="font-weight: 700; color: #48bb78;">95%</span>
+                                    </div>
+                                    <div style="height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; width: 95%; background: linear-gradient(90deg, #48bb78, #38a169); border-radius: 10px; transition: width 0.5s;"></div>
+                                    </div>
+                                    <small style="color: #718096; margin-top: 0.25rem; display: block;">RetinaFace Detector</small>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-weight: 600; color: #2d3748;">Recognition Accuracy</span>
+                                        <span style="font-weight: 700; color: #667eea;">92%</span>
+                                    </div>
+                                    <div style="height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; width: 92%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 10px; transition: width 0.5s;"></div>
+                                    </div>
+                                    <small style="color: #718096; margin-top: 0.25rem; display: block;">ArcFace Embeddings</small>
+                                </div>
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-weight: 600; color: #2d3748;">System Response</span>
+                                        <span style="font-weight: 700; color: #f6c23e;">< 500ms</span>
+                                    </div>
+                                    <div style="height: 10px; background: #e2e8f0; border-radius: 10px; overflow: hidden;">
+                                        <div style="height: 100%; width: 88%; background: linear-gradient(90deg, #f6c23e, #ed8936); border-radius: 10px; transition: width 0.5s;"></div>
+                                    </div>
+                                    <small style="color: #718096; margin-top: 0.25rem; display: block;">Average latency</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
             <!-- Stats Cards -->
             <div class="row mb-4">
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="stats-card primary">
                         <div>
-                            <div
-                                style="color: var(--primary); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                            <div style="color: var(--primary); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
                                 Total Users</div>
                             <div style="font-size: 1.5rem; font-weight: 700;" id="totalUsers">0</div>
                         </div>
@@ -467,8 +554,7 @@
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="stats-card success">
                         <div>
-                            <div
-                                style="color: var(--success); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                            <div style="color: var(--success); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
                                 Today's Attendance</div>
                             <div style="font-size: 1.5rem; font-weight: 700;" id="todayAttendance">0</div>
                         </div>
@@ -478,8 +564,7 @@
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="stats-card info">
                         <div>
-                            <div
-                                style="color: var(--info); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                            <div style="color: var(--info); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
                                 Blocked Users</div>
                             <div style="font-size: 1.5rem; font-weight: 700;" id="blockedUsers">0</div>
                         </div>
@@ -489,8 +574,7 @@
                 <div class="col-xl-3 col-md-6 mb-4">
                     <div class="stats-card warning">
                         <div>
-                            <div
-                                style="color: var(--warning); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                            <div style="color: var(--warning); font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
                                 Pending Requests</div>
                             <div style="font-size: 1.5rem; font-weight: 700;" id="pendingRequests">0</div>
                         </div>
