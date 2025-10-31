@@ -13,29 +13,48 @@
     <style>
         :root {
             --primary: #4e73df;
-            --sidebar: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            --success: #1cc88a;
+            --info: #36b9cc;
+            --warning: #f6c23e;
+            --danger: #e74a3b;
+            --dark: #5a5c69;
+            --sidebar: linear-gradient(180deg, #4e73df 10%, #000000 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Nunito', sans-serif;
-            background: #f8f9fc;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #010613;
             margin: 0;
         }
 
         .sidebar {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 250px;
             height: 100vh;
             background: var(--sidebar);
+            z-index: 100;
+            transition: all 0.3s;
         }
 
         .sidebar-brand {
             padding: 1.5rem;
             text-align: center;
-            color: white;
+            color: rgb(255, 255, 255);
             font-size: 1.3rem;
             font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgb(48, 10, 10);
+        }
+
+        .nav-item {
+            position: relative;
         }
 
         .nav-link {
@@ -48,38 +67,66 @@
         }
 
         .nav-link:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
+            color: rgb(255, 255, 255);
+            background: rgba(36, 9, 9, 0.26);
         }
 
         .nav-link.active {
             color: white;
             font-weight: 700;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(36, 9, 9, 0.26);
         }
 
         .nav-link i {
             margin-right: 0.5rem;
+            width: 20px;
         }
 
         .main-content {
             margin-left: 250px;
             padding: 0;
+            min-height: 100vh;
         }
 
         .topbar {
-            background: white;
+            background: rgb(255, 255, 255);
             padding: 1rem 1.5rem;
             box-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h4 {
+            margin: 0;
+            color: var(--dark);
+        }
+
+        .content-wrapper {
+            padding: 1.5rem;
+            background: #f8f9fc;
+            min-height: calc(100vh - 70px);
         }
 
         .profile-card {
             background: white;
             border-radius: 0.35rem;
             box-shadow: 0 0.15rem 1.75rem rgba(58, 59, 69, 0.15);
+            padding: 0;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), #667eea);
             padding: 2rem;
-            max-width: 800px;
-            margin: 2rem auto;
+            border-radius: 0.35rem 0.35rem 0 0;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-body {
+            padding: 2rem;
         }
 
         .profile-avatar {
@@ -87,14 +134,15 @@
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            background: var(--primary);
+            background: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 3rem;
             font-weight: 700;
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255, 255, 255, 0.3);
         }
 
         .form-label {
@@ -107,27 +155,53 @@
             border-radius: 0.35rem;
             border: 1px solid #d1d3e2;
             padding: 0.75rem;
+            font-size: 0.95rem;
         }
 
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+            outline: none;
+        }
+
+        .form-control:disabled {
+            background-color: #e9ecef;
+            opacity: 1;
         }
 
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 0.35rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .btn-primary {
             background: var(--primary);
             border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3b66d6;
         }
 
         .btn-secondary {
             background: #858796;
             border: none;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #6c6d7d;
         }
 
         .alert {
@@ -177,18 +251,19 @@
                 margin-left: 0;
             }
 
-            .topbar {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
             .mobile-toggle {
                 display: block !important;
             }
 
-            .profile-card {
-                margin: 1rem;
+            .content-wrapper {
+                padding: 1rem;
+            }
+
+            .profile-header {
+                padding: 1.5rem;
+            }
+
+            .profile-body {
                 padding: 1.5rem;
             }
 
@@ -200,8 +275,16 @@
         }
 
         @media (max-width: 576px) {
-            .profile-card {
-                padding: 1rem;
+            .content-wrapper {
+                padding: 0.75rem;
+            }
+
+            .profile-header {
+                padding: 1.25rem;
+            }
+
+            .profile-body {
+                padding: 1.25rem;
             }
 
             .profile-avatar {
@@ -213,6 +296,18 @@
             .btn {
                 padding: 0.5rem 1rem;
                 font-size: 0.9rem;
+            }
+
+            .topbar h4 {
+                font-size: 1.1rem;
+            }
+
+            .profile-header h3 {
+                font-size: 1.5rem !important;
+            }
+
+            .profile-header p {
+                font-size: 1rem !important;
             }
         }
 
@@ -231,8 +326,8 @@
 <body>
     <!-- Sidebar -->
     <nav class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fas fa-user-shield"></i> Admin Panel
+        <div class="sidebar-brand" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <i class="fas fa-brain"></i> AI Attendance
         </div>
         <ul class="nav flex-column" style="list-style: none; padding: 0; margin: 0;">
             <li class="nav-item">
@@ -268,21 +363,23 @@
             <button class="mobile-toggle" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-            <h4 style="margin: 0; color: #5a5c69;">My Profile</h4>
+            <h4>My Profile</h4>
         </nav>
 
-        <div class="profile-card">
-            <div id="alertMsg" style="display: none;"></div>
-
-            <div class="text-center mb-4">
-                <div class="profile-avatar" id="profileAvatar">
-                    <i class="fas fa-user"></i>
+        <div class="content-wrapper">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar" style="margin: 0 auto 1rem; border: 4px solid rgba(255, 255, 255, 0.3);">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 style="font-weight: 700; margin: 0; font-size: 1.75rem;" id="profileName">Loading...</h3>
+                    <p style="margin: 0.5rem 0 0; opacity: 0.9; font-size: 1.1rem;" id="profileRole">Administrator</p>
                 </div>
-                <h3 style="font-weight: 700; color: #5a5c69;" id="profileName">Loading...</h3>
-                <p style="color: #858796;" id="profileRole">Administrator</p>
-            </div>
 
-            <form id="profileForm">
+                <div class="profile-body">
+                    <div id="alertMsg" style="display: none;"></div>
+
+                    <form id="profileForm">
                 <div class="row mb-3">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Full Name</label>
@@ -313,7 +410,9 @@
                         <i class="fas fa-times"></i> Cancel
                     </a>
                 </div>
-            </form>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -339,9 +438,11 @@
                 // Update avatar
                 const avatar = document.getElementById('profileAvatar');
                 if (currentProfile.profile_image) {
-                    avatar.innerHTML = `<img src="data:image/jpeg;base64,${currentProfile.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    avatar.innerHTML = `<img src="data:image/jpeg;base64,${currentProfile.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.3);">`;
                 } else {
                     avatar.textContent = currentProfile.name[0].toUpperCase();
+                    avatar.style.background = 'rgba(255, 255, 255, 0.2)';
+                    avatar.style.color = 'white';
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);

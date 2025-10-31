@@ -304,13 +304,23 @@
             try {
                 const response = await auth.login(email, password);
                 
+                console.log('Login response:', response);
+                
+                // Check response structure
+                if (!response || !response.user) {
+                    throw new Error('Invalid response from server');
+                }
+                
                 // Redirect based on role
                 if (response.user.role === 'admin') {
+                    console.log('Redirecting to admin dashboard');
                     window.location.href = '/admin/dashboard.html';
                 } else {
+                    console.log('Redirecting to user dashboard');
                     window.location.href = '/user/dashboard.html';
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 showError(error.message || 'Login failed. Please check your credentials.');
                 submitBtn.disabled = false;
                 btnText.textContent = 'Sign in';

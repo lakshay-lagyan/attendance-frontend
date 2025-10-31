@@ -718,22 +718,42 @@
         let attendanceChart = null;
 
         async function initDashboard() {
-            // Check authentication
-            const isAuth = await auth.checkAuth();
-            if (!isAuth || !auth.isAdmin()) {
-                window.location.href = '/login.html';
-                return;
+            try {
+                console.log('Initializing dashboard...');
+                
+                // Check authentication
+                const isAuth = await auth.checkAuth();
+                console.log('Is authenticated:', isAuth);
+                console.log('Current user:', auth.currentUser);
+                
+                if (!isAuth) {
+                    console.log('Not authenticated, redirecting to login');
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                if (!auth.isAdmin()) {
+                    console.log('Not admin, redirecting to login');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                console.log('Loading dashboard data...');
+                await loadStats();
+                await loadRecentAttendance();
+                await loadUsers();
+                await loadAttendanceChart();
+                await loadPendingRequests();
+
+                setInterval(loadRecentAttendance, 10000);
+                setInterval(loadStats, 30000);
+                setInterval(loadPendingRequests, 30000);
+                
+                console.log('Dashboard loaded successfully');
+            } catch (error) {
+                console.error('Dashboard init error:', error);
+                alert('Error loading dashboard: ' + error.message);
             }
-
-            await loadStats();
-            await loadRecentAttendance();
-            await loadUsers();
-            await loadAttendanceChart();
-            await loadPendingRequests();
-
-            setInterval(loadRecentAttendance, 10000);
-            setInterval(loadStats, 30000);
-            setInterval(loadPendingRequests, 30000);
         }
 
         async function loadStats() {

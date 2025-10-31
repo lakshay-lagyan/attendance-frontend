@@ -487,8 +487,8 @@
 
                 const data = await response.json();
 
-                if (data.status === 'success') {
-                    showStatus(`✅ ${data.msg || data.message || 'Request submitted successfully!'}`, 'success');
+                if (data.success === true || data.status === 'success' || response.ok) {
+                    showStatus(`✅ ${data.message || data.msg || 'Enrollment successful!'}`, 'success');
 
                     // Reset form after 2 seconds
                     setTimeout(() => {
@@ -503,7 +503,7 @@
                         window.location.href = '/login.html';
                     }, 3000);
                 } else {
-                    showStatus(`❌ ${data.msg || data.message || 'Request failed'}`, 'error');
+                    showStatus(`❌ ${data.message || data.msg || 'Enrollment failed'}`, 'error');
                 }
             } catch (error) {
                 showStatus('❌ Error submitting request. Please try again.', 'error');
