@@ -32,7 +32,6 @@ const API_CONFIG = {
         UPDATE_PROFILE: '/api/user/update_profile',
         
         // Enrollment
-        SUBMIT_REQUEST: '/api/enrollment/request',
         ENROLL: '/api/enrollment/enroll',
         VALIDATE_IMAGE: '/api/enrollment/validate-image',
         
