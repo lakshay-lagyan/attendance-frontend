@@ -1,6 +1,6 @@
 const API_CONFIG = {
     // Backend API URL 
-    BASE_URL: 'https://attendance-backend-2kli.onrender.com',
+    BASE_URL: 'https://attendance-backend-fdaf.onrender.com',
     
     // API endpoints
     ENDPOINTS: {
