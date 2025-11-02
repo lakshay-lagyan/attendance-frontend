@@ -2,59 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Face Enrollment - Maximum Accuracy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Face Enrollment</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
+            overflow-x: hidden;
         }
         
         .container {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 1100px;
-            margin: 0 auto;
-            overflow: hidden;
+            min-height: 100vh;
+            max-width: 100%;
         }
         
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
+            padding: 1.5rem 1rem;
             text-align: center;
             color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
-        .header h2 { font-size: 32px; margin-bottom: 10px; }
+        .header h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
         .header .badge {
             background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 14px;
-            margin-top: 10px;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
         }
         
-        .content { padding: 30px; }
-        .form-group { margin-bottom: 20px; }
+        .content { padding: 1rem; }
+        
+        .form-group { margin-bottom: 1rem; }
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 0.5rem;
             font-weight: 600;
             color: #2d3748;
+            font-size: 0.9rem;
         }
         .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: 0.875rem;
             border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 16px; /* Prevents zoom on iOS */
         }
         .form-group input:focus {
             outline: none;
@@ -62,83 +63,132 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
+        /* Camera Container */
         .camera-container {
             position: relative;
             background: #000;
             border-radius: 12px;
             overflow: hidden;
-            margin: 20px 0;
+            margin: 1rem 0;
+            width: 100%;
         }
         
         #video {
             width: 100%;
             display: block;
-            min-height: 480px;
+            min-height: 300px;
+            max-height: 60vh;
+            object-fit: cover;
         }
         
         canvas { display: none; }
         
-        .overlay {
+        /* Camera Switch Button */
+        .camera-switch {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .face-box {
-            position: absolute;
-            border: 3px solid #4299e1;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(66, 153, 225, 0.5);
-            transition: all 0.3s;
-        }
-        
-        .face-box.good { border-color: #48bb78; }
-        .face-box.bad { border-color: #e53e3e; }
-        
+        /* Quality Overlay */
         .quality-overlay {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: rgba(0, 0, 0, 0.85);
-            padding: 20px;
-            border-radius: 12px;
+            padding: 1rem;
             color: white;
-            backdrop-filter: blur(10px);
         }
         
         .metric-row {
             display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
+            align-items: center;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+        
+        .metric-label {
+            width: 80px;
+            font-size: 0.75rem;
         }
         
         .metric-bar {
-            height: 8px;
+            flex: 1;
+            height: 6px;
             background: #2d3748;
             border-radius: 10px;
             overflow: hidden;
-            flex: 1;
-            margin: 0 15px;
+            margin: 0 0.5rem;
         }
         
         .metric-fill {
             height: 100%;
             transition: width 0.3s, background-color 0.3s;
+            border-radius: 10px;
         }
         
         .metric-fill.excellent { background: #48bb78; }
         .metric-fill.good { background: #4299e1; }
         .metric-fill.poor { background: #e53e3e; }
         
+        .metric-value {
+            width: 40px;
+            text-align: right;
+            font-size: 0.75rem;
+        }
+        
+        #qualityFeedback {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-item {
+            background: #f7fafc;
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-item h3 {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-item p {
+            font-size: 0.7rem;
+            color: #718096;
+            text-transform: uppercase;
+        }
+        
+        /* Capture Grid */
         .capture-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
         }
         
         .capture-item {
@@ -146,12 +196,13 @@
             border-radius: 8px;
             overflow: hidden;
             border: 3px solid #e2e8f0;
-            transition: all 0.3s;
+            aspect-ratio: 1;
         }
         
         .capture-item img {
             width: 100%;
-            display: block;
+            height: 100%;
+            object-fit: cover;
         }
         
         .capture-item.excellent { border-color: #48bb78; }
@@ -160,48 +211,111 @@
         
         .capture-badge {
             position: absolute;
-            top: 5px;
-            right: 5px;
+            top: 3px;
+            right: 3px;
             background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
             font-weight: bold;
         }
         
+        /* Buttons */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            padding: 1rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #statusMsg {
+            margin: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .status-info { background: #bee3f8; color: #2c5282; }
+        .status-success { background: #c6f6d5; color: #276749; }
+        .status-error { background: #fed7d7; color: #9b2c2c; }
+        .status-warning { background: #feebc8; color: #7c2d12; }
+        
+        /* Instruction Panel */
         .instruction-panel {
             background: #edf2f7;
-            padding: 20px;
+            padding: 1rem;
             border-radius: 10px;
-            margin: 20px 0;
+            margin: 1rem 0;
         }
         
         .instruction-panel h4 {
             color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 18px;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
         }
         
         .instruction-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
+            gap: 0.5rem;
         }
         
         .instruction-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px;
+            gap: 0.75rem;
+            padding: 0.75rem;
             background: white;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 0.85rem;
         }
         
         .instruction-icon {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             background: #667eea;
             color: white;
             border-radius: 50%;
@@ -210,90 +324,36 @@
             justify-content: center;
             font-weight: bold;
             flex-shrink: 0;
+            font-size: 0.75rem;
         }
         
-        .btn-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 25px;
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
         }
         
-        button {
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-        }
-        
-        .btn-success {
-            background: #48bb78;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #38a169;
-            transform: translateY(-2px);
-        }
-        
-        .btn-danger {
-            background: #e53e3e;
-            color: white;
-        }
-        .btn-danger:hover {
-            background: #c53030;
-            transform: translateY(-2px);
-        }
-        
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
-        #statusMsg {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        .status-info { background: #bee3f8; color: #2c5282; }
-        .status-success { background: #c6f6d5; color: #276749; }
-        .status-error { background: #fed7d7; color: #9b2c2c; }
-        .status-warning { background: #feebc8; color: #7c2d12; }
-        
-        .stats-bar {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-        
-        .stat-item h3 {
-            font-size: 28px;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-        
-        .stat-item p {
-            color: #718096;
-            font-size: 14px;
+        /* Landscape mode adjustments */
+        @media (orientation: landscape) and (max-height: 600px) {
+            #video {
+                max-height: 40vh;
+                min-height: 200px;
+            }
+            .quality-overlay {
+                padding: 0.5rem;
+            }
+            .metric-row {
+                margin: 0.25rem 0;
+            }
         }
     </style>
 </head>
@@ -317,47 +377,37 @@
                 
                 <div class="form-group">
                     <label for="password">Password *</label>
-                    <input type="password" id="password" name="password" placeholder="Minimum 6 characters" required minlength="6">
+                    <input type="password" id="password" name="password" placeholder="Min 6 characters" required minlength="6">
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label for="department">Department</label>
-                        <input type="text" id="department" name="department" placeholder="Engineering">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone" placeholder="+1 234 567 8900">
-                    </div>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input type="text" id="department" name="department" placeholder="Engineering">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+1 234 567 8900">
                 </div>
                 
                 <div class="instruction-panel">
-                    <h4>Capture Instructions:</h4>
+                    <h4>📋 Capture Tips:</h4>
                     <div class="instruction-list">
                         <div class="instruction-item">
                             <div class="instruction-icon">1</div>
-                            <span>Face camera directly</span>
-                        </div>
-                        <div class="instruction-item">
-                            <div class="instruction-icon">2</div>
                             <span>Good lighting essential</span>
                         </div>
                         <div class="instruction-item">
+                            <div class="instruction-icon">2</div>
+                            <span>Face camera directly</span>
+                        </div>
+                        <div class="instruction-item">
                             <div class="instruction-icon">3</div>
-                            <span>Remove glasses initially</span>
+                            <span>Capture at least 5 photos</span>
                         </div>
                         <div class="instruction-item">
                             <div class="instruction-icon">4</div>
-                            <span>Vary angles & expressions</span>
-                        </div>
-                        <div class="instruction-item">
-                            <div class="instruction-icon">5</div>
-                            <span>Stay still during capture</span>
-                        </div>
-                        <div class="instruction-item">
-                            <div class="instruction-icon">6</div>
-                            <span>Minimum 5 quality photos</span>
+                            <span>Vary angles slightly</span>
                         </div>
                     </div>
                 </div>
@@ -366,46 +416,36 @@
                     <video id="video" autoplay playsinline></video>
                     <canvas id="canvas"></canvas>
                     
-                    <div class="overlay" id="overlay">
-                        <div class="quality-overlay">
-                            <h4 style="margin-bottom: 15px;">Real-Time Quality Analysis</h4>
-                            
-                            <div class="metric-row">
-                                <span style="width: 100px;">Sharpness:</span>
-                                <div class="metric-bar">
-                                    <div class="metric-fill" id="sharpnessFill" style="width: 0%"></div>
-                                </div>
-                                <span id="sharpnessText" style="width: 60px; text-align: right;">0%</span>
+                    <button type="button" class="camera-switch" id="switchCamera" title="Switch Camera">
+                        🔄
+                    </button>
+                    
+                    <div class="quality-overlay">
+                        <div class="metric-row">
+                            <span class="metric-label">Sharpness:</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="sharpnessFill" style="width: 0%"></div>
                             </div>
-                            
-                            <div class="metric-row">
-                                <span style="width: 100px;">Brightness:</span>
-                                <div class="metric-bar">
-                                    <div class="metric-fill" id="brightnessFill" style="width: 0%"></div>
-                                </div>
-                                <span id="brightnessText" style="width: 60px; text-align: right;">0%</span>
-                            </div>
-                            
-                            <div class="metric-row">
-                                <span style="width: 100px;">Contrast:</span>
-                                <div class="metric-bar">
-                                    <div class="metric-fill" id="contrastFill" style="width: 0%"></div>
-                                </div>
-                                <span id="contrastText" style="width: 60px; text-align: right;">0%</span>
-                            </div>
-                            
-                            <div class="metric-row">
-                                <span style="width: 100px;">Overall:</span>
-                                <div class="metric-bar">
-                                    <div class="metric-fill" id="overallFill" style="width: 0%"></div>
-                                </div>
-                                <span id="overallText" style="width: 60px; text-align: right;">0%</span>
-                            </div>
-                            
-                            <p id="qualityFeedback" style="margin-top: 15px; font-size: 14px; color: #4299e1;">
-                                Position your face in view...
-                            </p>
+                            <span class="metric-value" id="sharpnessText">0%</span>
                         </div>
+                        
+                        <div class="metric-row">
+                            <span class="metric-label">Brightness:</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="brightnessFill" style="width: 0%"></div>
+                            </div>
+                            <span class="metric-value" id="brightnessText">0%</span>
+                        </div>
+                        
+                        <div class="metric-row">
+                            <span class="metric-label">Overall:</span>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="overallFill" style="width: 0%"></div>
+                            </div>
+                            <span class="metric-value" id="overallText">0%</span>
+                        </div>
+                        
+                        <p id="qualityFeedback">Position your face in view...</p>
                     </div>
                 </div>
                 
@@ -427,10 +467,10 @@
                 <div class="capture-grid" id="captureGrid"></div>
                 
                 <div class="btn-group">
-                    <button type="button" class="btn-primary" id="captureBtn"> Capture Image</button>
-                    <button type="button" class="btn-success" id="retakeBtn" style="display:none;">🔄 Retake Last</button>
-                    <button type="submit" class="btn-success" id="submitBtn" disabled> Enroll (0/5)</button>
-                    <button type="button" class="btn-danger" onclick="window.location.href='/admin/dashboard'"> Cancel</button>
+                    <button type="button" class="btn-primary" id="captureBtn">📷 Capture Photo</button>
+                    <button type="button" class="btn-success" id="retakeBtn" style="display:none;">🔄 Retake</button>
+                    <button type="submit" class="btn-success" id="submitBtn" disabled>✅ Enroll (0/5)</button>
+                    <button type="button" class="btn-danger" onclick="window.history.back()">❌ Cancel</button>
                 </div>
             </form>
             
@@ -446,35 +486,65 @@
         const captureBtn = document.getElementById('captureBtn');
         const retakeBtn = document.getElementById('retakeBtn');
         const submitBtn = document.getElementById('submitBtn');
+        const switchCameraBtn = document.getElementById('switchCamera');
         const captureGrid = document.getElementById('captureGrid');
         
         let captures = [];
         let isProcessing = false;
         let qualityCheckInterval;
+        let currentStream = null;
+        let facingMode = 'user'; // 'user' = front, 'environment' = back
         
-        // Start camera
+        // Start camera with mobile support
         async function startCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
-                        facingMode: 'user'
-                    }
-                });
-                video.srcObject = stream;
+                // Stop existing stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
                 
-                // Start real-time quality monitoring
-                startQualityMonitoring();
+                const constraints = {
+                    video: {
+                        facingMode: facingMode,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                };
+                
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                // Wait for video to load
+                video.onloadedmetadata = () => {
+                    video.play();
+                    startQualityMonitoring();
+                };
+                
+                showStatus('✅ Camera ready!', 'success');
             } catch (err) {
-                showStatus(' Camera access denied: ' + err.message, 'error');
+                console.error('Camera error:', err);
+                showStatus('❌ Camera access denied: ' + err.message, 'error');
+                
+                // Hide camera switch button if camera fails
+                switchCameraBtn.style.display = 'none';
             }
         }
         
+        // Switch between front and back camera
+        switchCameraBtn.addEventListener('click', async () => {
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+            await startCamera();
+        });
+        
         // Real-time quality monitoring
         async function startQualityMonitoring() {
+            if (qualityCheckInterval) {
+                clearInterval(qualityCheckInterval);
+            }
+            
             qualityCheckInterval = setInterval(async () => {
-                if (isProcessing) return;
+                if (isProcessing || !video.videoWidth) return;
                 
                 // Capture current frame
                 canvas.width = video.videoWidth;
@@ -485,7 +555,6 @@
                     if (!blob) return;
                     
                     try {
-                        // Validate with backend
                         const formData = new FormData();
                         formData.append('image', blob, 'frame.jpg');
                         
@@ -500,29 +569,26 @@
                         console.error('Quality check error:', err);
                     }
                 }, 'image/jpeg', 0.8);
-            }, 1000); // Check every second
+            }, 1500); // Check every 1.5 seconds (reduced for mobile performance)
         }
         
         function updateQualityUI(data) {
             const metrics = data.metrics || {};
             
-            // Update bars
             updateMetric('sharpness', metrics.sharpness || 0);
             updateMetric('brightness', metrics.brightness || 0);
-            updateMetric('contrast', metrics.contrast || 0);
             updateMetric('overall', data.quality_score || 0);
             
-            // Update feedback
             const feedback = document.getElementById('qualityFeedback');
             if (data.valid) {
-                feedback.textContent = ' Perfect! Ready to capture.';
+                feedback.textContent = '✅ Perfect! Ready to capture.';
                 feedback.style.color = '#48bb78';
                 captureBtn.disabled = false;
             } else {
                 const issues = data.issues || [];
                 feedback.textContent = '⚠️ ' + (issues[0] || 'Adjust position');
                 feedback.style.color = '#f6c23e';
-                captureBtn.disabled = issues.length > 2; // Disable if too many issues
+                captureBtn.disabled = issues.length > 2;
             }
         }
         
@@ -534,7 +600,6 @@
             fill.style.width = percent + '%';
             text.textContent = percent + '%';
             
-            // Color coding
             fill.className = 'metric-fill';
             if (value >= 0.7) fill.classList.add('excellent');
             else if (value >= 0.4) fill.classList.add('good');
@@ -547,16 +612,19 @@
             
             isProcessing = true;
             captureBtn.disabled = true;
-            captureBtn.textContent = ' Processing...';
+            captureBtn.innerHTML = '<span class="spinner"></span> Processing...';
             
-            // Capture frame
+            // Vibrate feedback (if supported)
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0);
             
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
             
-            // Validate quality
             canvas.toBlob(async (blob) => {
                 const formData = new FormData();
                 formData.append('image', blob, 'capture.jpg');
@@ -570,7 +638,6 @@
                     const data = await response.json();
                     
                     if (data.quality_score >= 0.5) {
-                        // Good quality - add to captures
                         captures.push({
                             dataUrl: dataUrl,
                             quality: data.quality_score,
@@ -579,27 +646,34 @@
                         
                         displayCapture(dataUrl, data.quality_score);
                         updateStats();
-                        showStatus(` Image ${captures.length} captured (Quality: ${Math.round(data.quality_score * 100)}%)`, 'success');
+                        showStatus(`✅ Photo ${captures.length} captured (${Math.round(data.quality_score * 100)}%)`, 'success');
                         
                         if (captures.length >= 5) {
                             submitBtn.disabled = false;
                         }
                         
                         retakeBtn.style.display = 'block';
+                        
+                        // Vibrate success
+                        if (navigator.vibrate) {
+                            navigator.vibrate([100, 50, 100]);
+                        }
                     } else {
-                        showStatus('⚠️ Quality too low. Please improve lighting and focus. Try again.', 'warning');
+                        showStatus('⚠️ Quality too low. Improve lighting and try again.', 'warning');
+                        if (navigator.vibrate) {
+                            navigator.vibrate(200);
+                        }
                     }
                 } catch (err) {
-                    showStatus(' Validation failed: ' + err.message, 'error');
+                    showStatus('❌ Validation failed: ' + err.message, 'error');
                 }
                 
                 isProcessing = false;
                 captureBtn.disabled = false;
-                captureBtn.textContent = ' Capture Image';
-            }, 'image/jpeg', 0.95);
+                captureBtn.textContent = '📷 Capture Photo';
+            }, 'image/jpeg', 0.9);
         });
         
-        // Display captured image
         function displayCapture(dataUrl, quality) {
             const div = document.createElement('div');
             div.className = 'capture-item';
@@ -617,9 +691,11 @@
             div.appendChild(badge);
             
             captureGrid.appendChild(div);
+            
+            // Scroll to show new capture
+            div.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
         
-        // Update stats
         function updateStats() {
             document.getElementById('captureCount').textContent = captures.length;
             
@@ -631,10 +707,9 @@
                 : 0;
             document.getElementById('avgQuality').textContent = Math.round(avgQuality * 100) + '%';
             
-            submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+            submitBtn.textContent = `✅ Enroll (${captures.length}/5)`;
         }
         
-        // Retake last image
         retakeBtn.addEventListener('click', () => {
             if (captures.length > 0) {
                 captures.pop();
@@ -649,7 +724,7 @@
                     retakeBtn.style.display = 'none';
                 }
                 
-                showStatus('Last image removed', 'info');
+                showStatus('🔄 Last photo removed', 'info');
             }
         });
         
@@ -658,13 +733,13 @@
             e.preventDefault();
             
             if (captures.length < 3) {
-                showStatus(' Minimum 3 images required', 'error');
+                showStatus('❌ Minimum 3 photos required', 'error');
                 return;
             }
             
             submitBtn.disabled = true;
-            submitBtn.textContent = ' Processing Enrollment...';
-            showStatus(' Processing enrollment... This may take 10-30 seconds.', 'info');
+            submitBtn.innerHTML = '<span class="spinner"></span> Enrolling...';
+            showStatus('⏳ Processing... This may take 10-30 seconds.', 'info');
             
             try {
                 const formData = new FormData();
@@ -674,7 +749,6 @@
                 formData.append('department', document.getElementById('department').value);
                 formData.append('phone', document.getElementById('phone').value);
                 
-                // Convert captures to blobs
                 for (let i = 0; i < captures.length; i++) {
                     const blob = await fetch(captures[i].dataUrl).then(r => r.blob());
                     formData.append('files', blob, `capture_${i}.jpg`);
@@ -688,26 +762,25 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showStatus(
-                        ` ${data.name} enrolled successfully!\n` +
-                        ` ${data.photos_used} photos processed | ` +
-                        ` Consistency: ${Math.round(data.consistency_score * 100)}% | ` +
-                        `Avg Quality: ${Math.round(data.avg_quality * 100)}%`,
-                        'success'
-                    );
+                    showStatus(`✅ ${data.name} enrolled! Redirecting...`, 'success');
+                    
+                    // Vibrate success
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
                     
                     setTimeout(() => {
-                        window.location.href = '/admin/dashboard.html';
-                    }, 3000);
+                        window.location.href = '/login.html';
+                    }, 2000);
                 } else {
-                    showStatus(' ' + data.message, 'error');
+                    showStatus('❌ ' + data.message, 'error');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+                    submitBtn.textContent = `✅ Enroll (${captures.length}/5)`;
                 }
             } catch (err) {
-                showStatus(' Enrollment failed: ' + err.message, 'error');
+                showStatus('❌ Enrollment failed: ' + err.message, 'error');
                 submitBtn.disabled = false;
-                submitBtn.textContent = ` Enroll (${captures.length}/5)`;
+                submitBtn.textContent = `✅ Enroll (${captures.length}/5)`;
             }
         });
         
@@ -725,11 +798,19 @@
         
         // Cleanup
         window.addEventListener('beforeunload', () => {
-            if (video.srcObject) {
-                video.srcObject.getTracks().forEach(track => track.stop());
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
             }
             if (qualityCheckInterval) {
                 clearInterval(qualityCheckInterval);
+            }
+        });
+        
+        // Prevent accidental page refresh
+        window.addEventListener('beforeunload', (e) => {
+            if (captures.length > 0 && !submitBtn.disabled) {
+                e.preventDefault();
+                e.returnValue = '';
             }
         });
     </script>
