@@ -369,7 +369,16 @@
         <div id="statusMsg"></div>
     </div>
 
-    <script src="/assets/js/config.js"></script>
+    <script src="/config.js"></script>
+    <script>
+        // Ensure API_CONFIG is available
+        if (typeof API_CONFIG === 'undefined') {
+            window.API_CONFIG = {
+                BASE_URL: 'https://attendance-backend-api-production-c552.up.railway.app'
+            };
+        }
+        console.log('API_CONFIG loaded:', API_CONFIG);
+    </script>
 
     <script>
         const fileInput = document.getElementById('files');
@@ -481,13 +490,18 @@
             btnText.innerHTML = '<span class="spinner"></span> Submitting...';
 
             try {
-                const baseUrl = window.config?.baseUrl || 'https://attendance-backend-api-production-c552.up.railway.app';
-                const response = await fetch(`${baseUrl}/api/enrollment/enroll`, {
+                // Get base URL and remove trailing slash
+                let baseUrl = API_CONFIG?.BASE_URL || 'https://attendance-backend-api-production-c552.up.railway.app';
+                baseUrl = baseUrl.replace(/\/$/, ''); // Remove trailing slash
+                
+                const apiUrl = `${baseUrl}/api/enrollment/enroll`;
+                console.log('Submitting enrollment to:', apiUrl);
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData
                 });
-
 
                 console.log('Response status:', response.status);
                 console.log('Response OK:', response.ok);
