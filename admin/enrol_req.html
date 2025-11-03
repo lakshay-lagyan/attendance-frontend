@@ -1,64 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Enrollment • Smart Attendance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Enrollment Request • Smart Attendance</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #6B46C1, #4299E1);
-            color: #2D3748;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
         .container {
-            background: rgba(122, 135, 173, 0.562);
-            padding: 35px;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 15px 35px rgb(0, 0, 0);
+            background: white;
+            min-height: 100vh;
+            max-width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6B46C1, #4299E1);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
         }
 
         h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #f8f8f8;
-            font-size: 28px;
-            position: relative;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
 
-        h2:after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 4px;
-            background: #000000;
-            margin: 10px auto;
-            border-radius: 2px;
+        .content {
+            padding: 1rem;
+        }
+
+        .info-box {
+            background: #FFF5F5;
+            border: 1px solid #FEB2B2;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #742A2A;
         }
 
         .form-group {
-            margin-bottom: 25px;
-            position: relative;
+            margin-bottom: 1rem;
         }
 
         input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 0.875rem;
             border-radius: 10px;
             border: 2px solid #E2E8F0;
-            background: #F7FAFC;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
+            font-size: 16px; /* Prevents zoom on iOS */
+            transition: all 0.3s;
         }
 
         input:focus {
@@ -67,34 +65,42 @@
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
         }
 
+        small {
+            display: block;
+            color: #4A5568;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
         .file-upload {
-            background: #c1dae9c7;
-            padding: 20px;
+            background: #EBF8FF;
+            padding: 1.5rem;
             border-radius: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 1.5rem;
             border: 2px dashed #4299E1;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .file-upload:hover {
-            background: #ffffff;
-            border-color: #00050a;
+        .file-upload:active {
+            background: #BEE3F8;
+            border-color: #2B6CB0;
         }
 
         .file-upload label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 0.75rem;
             color: #2B6CB0;
             font-weight: 600;
             cursor: pointer;
+            font-size: 1rem;
         }
 
         .file-count {
-            margin-top: 10px;
+            margin-top: 0.75rem;
             color: #4A5568;
-            font-size: 14px;
+            font-size: 0.9rem;
         }
 
         .file-count.valid {
@@ -104,9 +110,9 @@
 
         .preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
 
         .preview-item {
@@ -130,36 +136,42 @@
             background: rgba(239, 68, 68, 0.9);
             border: none;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             cursor: pointer;
             color: white;
-            font-size: 12px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: bold;
         }
 
         .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
 
         button {
-            flex: 1;
-            padding: 12px 20px;
+            padding: 1rem;
             border: none;
             border-radius: 10px;
             font-weight: 600;
-            font-size: 16px;
+            font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s;
+            touch-action: manipulation;
         }
 
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        button:active {
+            transform: scale(0.98);
         }
 
         button:disabled {
@@ -170,6 +182,7 @@
         .btn-submit {
             background: #4299E1;
             color: white;
+            grid-column: 1 / -1;
         }
 
         .btn-cancel {
@@ -178,12 +191,13 @@
         }
 
         #statusMsg {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 1.5rem;
+            padding: 1rem;
             border-radius: 10px;
-            font-weight: 500;
+            font-weight: 600;
             text-align: center;
             display: none;
+            font-size: 0.9rem;
         }
 
         #statusMsg.show {
@@ -211,164 +225,80 @@
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
 
         footer {
-            margin-top: 20px;
+            margin-top: 1.5rem;
             text-align: center;
-            color: #081935;
-            font-size: 16px;
+            color: #2D3748;
+            font-size: 0.9rem;
+            padding: 1rem;
         }
 
         footer a {
-            color: #9b0101;
+            color: #4299E1;
             text-decoration: none;
-            font-weight: 700;
-        }
-
-        footer a:hover {
-            text-decoration: underline;
-        }
-
-        .info-box {
-            background: #FFF5F5;
-            border: 1px solid #FEB2B2;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #742A2A;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-
-            .container {
-                padding: 25px;
-                max-width: 100%;
-            }
-
-            h2 {
-                font-size: 24px;
-            }
-
-            .preview-grid {
-                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-            }
-
-            .container {
-                padding: 20px;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-
-            input {
-                font-size: 16px; /* Prevent zoom on iOS */
-                padding: 14px;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-                padding: 14px;
-                font-size: 16px;
-            }
-
-            .file-upload {
-                padding: 15px;
-            }
-
-            .preview-grid {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-                gap: 8px;
-            }
-
-            footer {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .container {
-                padding: 15px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
+            font-weight: 600;
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h2>Enrollment Request</h2>
-
-        <div class="info-box">
-            <strong> request will be reviewed by an admin. You'll be notified once approved.</strong>
+        <div class="header">
+            <h2>📝 Enrollment Request</h2>
+            <p style="opacity: 0.9; font-size: 0.9rem;">Admin will review your request</p>
         </div>
 
-        <form id="enrollForm" enctype="multipart/form-data">
-            <div class="form-group">
-                <input type="text" name="name" placeholder="Full Name *" required>
+        <div class="content">
+            <div class="info-box">
+                <strong>ℹ️ Your request will be reviewed by an admin. You'll be notified once approved.</strong>
             </div>
 
-            <div class="form-group">
-                <input type="email" name="email" placeholder="Email Address *" required>
-            </div>
+            <form id="enrollForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="text" name="name" placeholder="Full Name *" required>
+                </div>
 
-            <div class="form-group">
-                <input type="tel" name="phone" placeholder="Phone Number" required>
-            </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Email Address *" required>
+                </div>
 
-            <div class="form-group">
-                <input type="password" name="password" placeholder="Create Password *" required minlength="6">
-                <small style="color: #4A5568; font-size: 12px; display: block; margin-top: 5px;">
-                    Minimum 6 characters - This will be your login password
-                </small>
-            </div>
+                <div class="form-group">
+                    <input type="tel" name="phone" placeholder="Phone Number *" required>
+                </div>
 
-            <div id="uploadArea" class="file-upload">
-                <label for="files"> Upload Your Face Images</label>
-                <p style="color: #4A5568; font-size: 14px; margin: 0;">At least 5 clear photos required</p>
-                <input type="file" id="files" name="files" accept="image/*" multiple style="display: none;">
-                <div class="file-count" id="fileCount">0 images selected</div>
-                <div class="preview-grid" id="previewGrid"></div>
-            </div>
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="Create Password *" required minlength="6">
+                    <small>Min 6 characters - This will be your login password</small>
+                </div>
 
-            <div class="btn-group">
-                <button type="submit" class="btn-submit" id="submitBtn">
-                    <span id="btnText">Send Request</span>
-                </button>
-                <button type="button" class="btn-cancel" onclick="backBtn()">Back</button>
-            </div>
-        </form>
+                <div id="uploadArea" class="file-upload">
+                    <label for="files">📸 Upload Your Face Images</label>
+                    <p style="color: #4A5568; font-size: 0.85rem; margin: 0;">At least 5 clear photos required</p>
+                    <input type="file" id="files" name="files" accept="image/*" multiple capture="user" style="display: none;">
+                    <div class="file-count" id="fileCount">0 images selected</div>
+                    <div class="preview-grid" id="previewGrid"></div>
+                </div>
 
-        <footer>
-            <div>Already have an account?
+                <div class="btn-group">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <span id="btnText">📤 Send Request</span>
+                    </button>
+                    <button type="button" class="btn-cancel" onclick="window.location.href='/login.html'">❌ Cancel</button>
+                </div>
+            </form>
+
+            <footer>
+                Already have an account?
                 <a href="/login.html">Login here</a>
-            </div>
-        </footer>
+            </footer>
 
-        <div id="statusMsg"></div>
+            <div id="statusMsg"></div>
+        </div>
     </div>
 
+    <script src="/config.js"></script>
     <script>
         const fileInput = document.getElementById('files');
         const uploadArea = document.getElementById('uploadArea');
@@ -381,31 +311,12 @@
 
         let selectedFiles = [];
 
-        // Click to upload
         uploadArea.addEventListener('click', (e) => {
             if (e.target.classList.contains('remove-btn')) return;
             fileInput.click();
         });
 
-        // File selection
         fileInput.addEventListener('change', handleFiles);
-
-        // Drag and drop
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#2B6CB0';
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#4299E1';
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#4299E1';
-            const files = Array.from(e.dataTransfer.files);
-            handleFilesArray(files);
-        });
 
         function handleFiles(e) {
             const files = Array.from(e.target.files);
@@ -413,7 +324,7 @@
         }
 
         function handleFilesArray(files) {
-            selectedFiles = [...selectedFiles, ...files].slice(0, 10); // Limit to 10 images
+            selectedFiles = [...selectedFiles, ...files].slice(0, 10);
             updatePreview();
             updateFileCount();
         }
@@ -455,12 +366,11 @@
             }
         }
 
-        // Form submission
         enrollForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             if (selectedFiles.length < 5) {
-                showStatus("Please upload at least 5 face images.", "error");
+                showStatus("❌ Please upload at least 5 face images.", "error");
                 return;
             }
 
@@ -474,48 +384,40 @@
                 formData.append('files', file);
             });
 
-            // Show loading state
             submitBtn.disabled = true;
             btnText.innerHTML = '<span class="spinner"></span> Submitting...';
 
+            // Vibrate feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
             try {
-                console.log('Submitting enrollment with', selectedFiles.length, 'files');
-                
-                const response = await fetch(`https://attendance-backend-api-production-c552.up.railway.app/api/enrollment/enroll`, {
+                const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/enroll`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData
                 });
 
-                console.log('Response status:', response.status);
-                console.log('Response OK:', response.ok);
-                console.log('Response headers:', response.headers.get('content-type'));
-
-                // Get response text first to see what we're dealing with
                 const responseText = await response.text();
-                console.log('Response text:', responseText);
-
                 let data;
+                
                 try {
-                    if (responseText) {
-                        data = JSON.parse(responseText);
-                        console.log('Parsed data:', data);
-                    } else {
-                        console.error('Empty response from server');
-                        showStatus('❌ Server returned empty response. Backend may have crashed.', 'error');
-                        return;
-                    }
+                    data = responseText ? JSON.parse(responseText) : {};
                 } catch (parseError) {
-                    console.error('Failed to parse response:', parseError);
-                    console.error('Raw response:', responseText);
+                    console.error('Parse error:', parseError);
                     showStatus(`❌ Server error: ${responseText.substring(0, 100)}`, 'error');
                     return;
                 }
 
                 if (data.success === true || response.ok) {
-                    showStatus(`✅ ${data.message || data.msg || 'Enrollment successful!'}`, 'success');
+                    showStatus(`✅ ${data.message || 'Enrollment successful!'}`, 'success');
 
-                    // Reset form after 2 seconds
+                    // Vibrate success
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
+
                     setTimeout(() => {
                         enrollForm.reset();
                         selectedFiles = [];
@@ -523,42 +425,42 @@
                         updateFileCount();
                     }, 2000);
 
-                    // Redirect to login after 3 seconds
                     setTimeout(() => {
                         window.location.href = '/login.html';
                     }, 3000);
                 } else {
                     const errorMsg = data.message || data.msg || data.error || 'Enrollment failed';
-                    console.error('Enrollment failed:', errorMsg);
                     showStatus(`❌ ${errorMsg}`, 'error');
+                    
+                    // Vibrate error
+                    if (navigator.vibrate) {
+                        navigator.vibrate(200);
+                    }
                 }
             } catch (error) {
-                console.error('Enrollment error details:', error);
-                console.error('Error type:', error.constructor.name);
-                console.error('Error message:', error.message);
-                showStatus(`❌ Error: ${error.message}. Check console for details.`, 'error');
+                console.error('Enrollment error:', error);
+                showStatus(`❌ Error: ${error.message}`, 'error');
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(200);
+                }
             } finally {
                 submitBtn.disabled = false;
-                btnText.textContent = 'Send Request';
+                btnText.textContent = '📤 Send Request';
             }
         });
 
         function showStatus(message, type) {
             statusMsg.textContent = message;
             statusMsg.className = `status-${type} show`;
+            statusMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             setTimeout(() => {
                 statusMsg.classList.remove('show');
             }, 5000);
         }
 
-        function backBtn() {
-            window.location.href = "/login.html";
-        }
-
-        // Make removeFile globally accessible
         window.removeFile = removeFile;
     </script>
 </body>
-
 </html>
