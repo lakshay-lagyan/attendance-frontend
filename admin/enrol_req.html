@@ -3,10 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Request Enrollment</title>
-    <!-- CRITICAL: Load config.js first -->
-    <script src="/config.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Enrollment </title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,18 +19,18 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(122, 135, 173, 0.562);
             padding: 35px;
             border-radius: 16px;
             width: 90%;
             max-width: 500px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 35px rgb(0, 0, 0);
         }
 
         h2 {
             text-align: center;
             margin-bottom: 30px;
-            color: #2D3748;
+            color: #f8f8f8;
             font-size: 28px;
             position: relative;
         }
@@ -42,13 +40,13 @@
             display: block;
             width: 60px;
             height: 4px;
-            background: #4299E1;
+            background: #000000;
             margin: 10px auto;
             border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             position: relative;
         }
 
@@ -70,7 +68,7 @@
         }
 
         .file-upload {
-            background: #EBF8FF;
+            background: #c1dae9c7;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 25px;
@@ -81,8 +79,8 @@
         }
 
         .file-upload:hover {
-            background: #BEE3F8;
-            border-color: #2B6CB0;
+            background: #ffffff;
+            border-color: #00050a;
         }
 
         .file-upload label {
@@ -221,12 +219,12 @@
         footer {
             margin-top: 20px;
             text-align: center;
-            color: #2D3748;
+            color: #081935;
             font-size: 16px;
         }
 
         footer a {
-            color: #4299E1;
+            color: #9b0101;
             text-decoration: none;
             font-weight: 700;
         }
@@ -278,7 +276,7 @@
             }
 
             input {
-                font-size: 16px;
+                font-size: 16px; /* Prevent zoom on iOS */
                 padding: 14px;
             }
 
@@ -305,15 +303,25 @@
                 font-size: 14px;
             }
         }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2><strong>ENROLL Request</strong> </h2>
+        <h2>Enrollment Request</h2>
 
         <div class="info-box">
-            <strong>ℹ️ Your request will be reviewed by an admin. You'll be notified once approved.</strong>
+            <strong> request will be reviewed by an admin. You'll be notified once approved.</strong>
         </div>
 
         <form id="enrollForm" enctype="multipart/form-data">
@@ -326,7 +334,7 @@
             </div>
 
             <div class="form-group">
-                <input type="tel" name="phone" placeholder="Phone Number *" required>
+                <input type="tel" name="phone" placeholder="Phone Number" required>
             </div>
 
             <div class="form-group">
@@ -337,18 +345,18 @@
             </div>
 
             <div id="uploadArea" class="file-upload">
-                <label for="files">📸 Upload Your Face Images</label>
+                <label for="files"> Upload Your Face Images</label>
                 <p style="color: #4A5568; font-size: 14px; margin: 0;">At least 5 clear photos required</p>
-                <input type="file" id="files" name="files" accept="image/*" multiple capture="user" style="display: none;">
+                <input type="file" id="files" name="files" accept="image/*" multiple style="display: none;">
                 <div class="file-count" id="fileCount">0 images selected</div>
                 <div class="preview-grid" id="previewGrid"></div>
             </div>
 
             <div class="btn-group">
                 <button type="submit" class="btn-submit" id="submitBtn">
-                    <span id="btnText">📤 Send Request</span>
+                    <span id="btnText">Send Request</span>
                 </button>
-                <button type="button" class="btn-cancel" onclick="backBtn()">❌ Back</button>
+                <button type="button" class="btn-cancel" onclick="backBtn()">Back</button>
             </div>
         </form>
 
@@ -361,13 +369,9 @@
         <div id="statusMsg"></div>
     </div>
 
-    <script>
-        // Check if API_CONFIG is loaded
-        if (typeof API_CONFIG === 'undefined') {
-            alert('⚠️ Configuration not loaded! Please refresh the page.');
-            console.error('API_CONFIG is undefined. Make sure config.js is loaded.');
-        }
+    <script src="/assets/js/config.js"></script>
 
+    <script>
         const fileInput = document.getElementById('files');
         const uploadArea = document.getElementById('uploadArea');
         const previewGrid = document.getElementById('previewGrid');
@@ -387,6 +391,23 @@
 
         // File selection
         fileInput.addEventListener('change', handleFiles);
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#2B6CB0';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#4299E1';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4299E1';
+            const files = Array.from(e.dataTransfer.files);
+            handleFilesArray(files);
+        });
 
         function handleFiles(e) {
             const files = Array.from(e.target.files);
@@ -441,14 +462,7 @@
             e.preventDefault();
 
             if (selectedFiles.length < 5) {
-                showStatus("❌ Please upload at least 5 face images.", "error");
-                return;
-            }
-
-            // Validate API_CONFIG
-            if (typeof API_CONFIG === 'undefined' || !API_CONFIG.BASE_URL) {
-                showStatus("❌ Configuration error. Please refresh the page.", "error");
-                console.error('API_CONFIG not loaded properly');
+                showStatus("Please upload at least 5 face images.", "error");
                 return;
             }
 
@@ -467,24 +481,19 @@
             btnText.innerHTML = '<span class="spinner"></span> Submitting...';
 
             try {
-                console.log('Submitting enrollment with', selectedFiles.length, 'files');
-                console.log('Backend URL:', API_CONFIG.BASE_URL);
-                
-                // Use API_CONFIG instead of hardcoded URL
-                const apiUrl = `${API_CONFIG.BASE_URL}/api/enrollment/enroll`;
-                console.log('Full API URL:', apiUrl);
-                
-                const response = await fetch(apiUrl, {
+                const baseUrl = window.config?.baseUrl || 'https://attendance-backend-api-production-c552.up.railway.app';
+                const response = await fetch(`${baseUrl}/api/enrollment/enroll`, {
                     method: 'POST',
                     credentials: 'include',
                     body: formData
                 });
 
+
                 console.log('Response status:', response.status);
                 console.log('Response OK:', response.ok);
                 console.log('Response headers:', response.headers.get('content-type'));
 
-                // Get response text first
+                // Get response text first to see what we're dealing with
                 const responseText = await response.text();
                 console.log('Response text:', responseText);
 
@@ -495,7 +504,7 @@
                         console.log('Parsed data:', data);
                     } else {
                         console.error('Empty response from server');
-                        showStatus('❌ Server returned empty response. Backend may be down.', 'error');
+                        showStatus('❌ Server returned empty response. Backend may have crashed.', 'error');
                         return;
                     }
                 } catch (parseError) {
@@ -507,11 +516,6 @@
 
                 if (data.success === true || response.ok) {
                     showStatus(`✅ ${data.message || data.msg || 'Enrollment successful!'}`, 'success');
-
-                    // Vibrate success (mobile)
-                    if (navigator.vibrate) {
-                        navigator.vibrate([100, 50, 100, 50, 200]);
-                    }
 
                     // Reset form after 2 seconds
                     setTimeout(() => {
@@ -529,34 +533,12 @@
                     const errorMsg = data.message || data.msg || data.error || 'Enrollment failed';
                     console.error('Enrollment failed:', errorMsg);
                     showStatus(`❌ ${errorMsg}`, 'error');
-                    
-                    // Vibrate error (mobile)
-                    if (navigator.vibrate) {
-                        navigator.vibrate(200);
-                    }
                 }
             } catch (error) {
                 console.error('Enrollment error details:', error);
                 console.error('Error type:', error.constructor.name);
                 console.error('Error message:', error.message);
-                console.error('Error stack:', error.stack);
-                
-                // Provide more helpful error messages
-                let errorMessage = 'Network error. ';
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage += 'Cannot connect to backend. Check:\n';
-                    errorMessage += '1. Backend URL in config.js\n';
-                    errorMessage += '2. Backend is running on Railway\n';
-                    errorMessage += '3. CORS settings allow your frontend domain';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                showStatus(`❌ ${errorMessage}`, 'error');
-                
-                if (navigator.vibrate) {
-                    navigator.vibrate(200);
-                }
+                showStatus(`❌ Error: ${error.message}. Check console for details.`, 'error');
             } finally {
                 submitBtn.disabled = false;
                 btnText.textContent = 'Send Request';
@@ -578,9 +560,6 @@
 
         // Make removeFile globally accessible
         window.removeFile = removeFile;
-        
-        // Log configuration on page load
-        console.log('Page loaded. API Configuration:', API_CONFIG);
     </script>
 </body>
 

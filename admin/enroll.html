@@ -419,6 +419,13 @@
             margin-bottom: 20px;
         }
     </style>
+    <script src="/config.js"></script>
+<script>
+    if (typeof API_CONFIG === 'undefined') {
+        window.API_CONFIG = { BASE_URL: '' };
+    }
+</script>
+
 </head>
 
 <body>
@@ -809,7 +816,12 @@
             showStatus("⏳ Processing enrollment... This may take a moment.", "info");
 
             try {
-                const res = await fetch("/enroll", { method: "POST", body: formData });
+                const baseUrl = typeof API_CONFIG !== 'undefined' ? API_CONFIG.BASE_URL : '';
+                const res = await fetch(`${baseUrl}/api/enrollment/enroll`, { 
+                    method: "POST", 
+                    body: formData,
+                    credentials: 'include'
+                });
                 const data = await res.json();
 
                 if (data.status === "success") {

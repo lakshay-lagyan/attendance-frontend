@@ -478,7 +478,15 @@
         </div>
     </div>
     
-    <script src="/config.js"></script>
+    <script src="/assets/config.js"></script>
+    <script>
+        // Ensure API_CONFIG is available
+        if (typeof API_CONFIG === 'undefined') {
+            window.API_CONFIG = {
+                BASE_URL: 'https://attendance-backend-api-production-c552.up.railway.app'
+            };
+        }
+    </script>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
@@ -558,9 +566,11 @@
                         const formData = new FormData();
                         formData.append('image', blob, 'frame.jpg');
                         
-                        const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/validate-image`, {
+                        const baseUrl = API_CONFIG?.BASE_URL || '';
+                        const response = await fetch(`${baseUrl}/api/enrollment/validate-image`, {
                             method: 'POST',
-                            body: formData
+                            body: formData,
+                            credentials: 'include'
                         });
                         
                         const data = await response.json();
@@ -630,9 +640,11 @@
                 formData.append('image', blob, 'capture.jpg');
                 
                 try {
-                    const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/validate-image`, {
+                    const baseUrl = API_CONFIG?.BASE_URL || '';
+                    const response = await fetch(`${baseUrl}/api/enrollment/validate-image`, {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        credentials: 'include'
                     });
                     
                     const data = await response.json();
@@ -754,9 +766,11 @@
                     formData.append('files', blob, `capture_${i}.jpg`);
                 }
                 
-                const response = await fetch(`${API_CONFIG.BASE_URL}/api/enrollment/enroll`, {
+                const baseUrl = API_CONFIG?.BASE_URL || '';
+                const response = await fetch(`${baseUrl}/api/enrollment/enroll`, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    credentials: 'include'
                 });
                 
                 const data = await response.json();
