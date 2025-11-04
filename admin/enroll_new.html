@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Face Enrollment | Smart Attendance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718096;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Method Selection */
+        .method-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .method-option {
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .method-option:hover {
+            border-color: #cbd5e0;
+        }
+
+        .method-option.active {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .method-option input[type="radio"] {
+            display: none;
+        }
+
+        .method-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .method-title {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .method-desc {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Camera Section */
+        .camera-section {
+            margin-bottom: 25px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #video {
+            width: 100%;
+            display: block;
+            transform: scaleX(-1);
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .face-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 250px;
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+
+        .capture-instruction {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .progress-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .progress-step {
+            background: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            background: #4299e1;
+            color: white;
+        }
+
+        .progress-step.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            border: 3px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Snapshots */
+        .snapshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .snapshots-grid img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #48bb78;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(66, 153, 225, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        /* Status Messages */
+        .status-msg {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-msg.show {
+            display: block;
+        }
+
+        .status-msg.success {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .status-msg.error {
+            background: #fed7d7;
+            color: #9b2c2c;
+        }
+
+        .status-msg.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Hide sections by default */
+        #cameraSection, #uploadSection {
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .method-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+
+            .face-guide {
+                width: 150px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .method-icon {
+                font-size: 36px;
+            }
+
+            .progress-container {
+                gap: 5px;
+            }
+
+            .progress-step {
+                padding: 6px 8px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Face Enrollment</h1>
+        <p class="subtitle">Enroll your face for attendance recognition</p>
+
+        <form id="enrollForm">
+            <!-- Personal Information -->
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" placeholder="John Doe" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email *</label>
+                <input type="email" id="email" name="email" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 234 567 8900">
+            </div>
+
+            <div class="form-group">
+                <label for="department">Department</label>
+                <input type="text" id="department" name="department" placeholder="Engineering">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" placeholder="Create a password" required minlength="6">
+            </div>
+
+            <!-- Method Selection -->
+            <div class="form-group">
+                <label>Enrollment Method *</label>
+                <div class="method-selector">
+                    <label class="method-option active">
+                        <input type="radio" name="method" value="camera" checked>
+                        <div class="method-icon">📷</div>
+                        <div class="method-title">Camera Capture</div>
+                        <div class="method-desc">Live face scanning</div>
+                    </label>
+                    <label class="method-option">
+                        <input type="radio" name="method" value="upload">
+                        <div class="method-icon">🖼️</div>
+                        <div class="method-title">Upload Photos</div>
+                        <div class="method-desc">Select from gallery</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Camera Section -->
+            <div id="cameraSection" class="camera-section">
+                <div class="progress-container" id="progressSteps"></div>
+                
+                <div class="video-container">
+                    <video id="video" autoplay playsinline muted></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                    <div class="camera-overlay">
+                        <div class="face-guide"></div>
+                        <div class="capture-instruction" id="instruction">Click "Start Capture" to begin</div>
+                    </div>
+                </div>
+
+                <div class="snapshots-grid" id="snapshotsGrid"></div>
+
+                <button type="button" class="btn btn-primary" id="captureBtn">📷 Start Capture</button>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="uploadSection">
+                <div class="upload-section" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📤</div>
+                    <div style="font-weight:600; margin-bottom:5px;">Click to upload photos</div>
+                    <div style="font-size:13px; color:#718096;">Minimum 5 images required</div>
+                </div>
+                <input type="file" id="fileInput" accept="image/*" multiple capture="environment">
+                
+                <div class="snapshots-grid" id="uploadPreview"></div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="btn-group">
+                <button type="submit" class="btn btn-success" id="submitBtn" disabled>
+                    <span id="btnText">✅ Enroll</span>
+                </button>
+                <button type="button" class="btn" style="background:#e53e3e; color:white;" onclick="window.location.href='/admin/dashboard.html'">
+                    ❌ Cancel
+                </button>
+            </div>
+
+            <!-- Status Message -->
+            <div class="status-msg" id="statusMsg"></div>
+        </form>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://attendance-backend-api-production-c552.up.railway.app';
+        const CAPTURE_STEPS = [
+            { name: 'Front', instruction: 'Look straight ahead', delay: 3000 },
+            { name: 'Left', instruction: 'Turn slightly LEFT', delay: 3000 },
+            { name: 'Right', instruction: 'Turn slightly RIGHT', delay: 3000 },
+            { name: 'Smile', instruction: 'Smile naturally', delay: 3000 },
+            { name: 'Neutral', instruction: 'Neutral expression', delay: 3000 }
+        ];
+
+        // DOM Elements
+        const form = document.getElementById('enrollForm');
+        const cameraSection = document.getElementById('cameraSection');
+        const uploadSection = document.getElementById('uploadSection');
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const snapshotsGrid = document.getElementById('snapshotsGrid');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const captureBtn = document.getElementById('captureBtn');
+        const fileInput = document.getElementById('fileInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const statusMsg = document.getElementById('statusMsg');
+        const instruction = document.getElementById('instruction');
+        const progressSteps = document.getElementById('progressSteps');
+
+        // State
+        let currentMethod = 'camera';
+        let snapshots = [];
+        let isCapturing = false;
+        let currentStep = 0;
+        let stream = null;
+
+        // Initialize
+        initProgressBar();
+        startCamera();
+
+        // Method toggle
+        document.querySelectorAll('input[name="method"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.querySelectorAll('.method-option').forEach(opt => opt.classList.remove('active'));
+                e.target.closest('.method-option').classList.add('active');
+                
+                currentMethod = e.target.value;
+                
+                if (currentMethod === 'camera') {
+                    cameraSection.style.display = 'block';
+                    uploadSection.style.display = 'none';
+                    startCamera();
+                } else {
+                    cameraSection.style.display = 'none';
+                    uploadSection.style.display = 'block';
+                    stopCamera();
+                }
+            });
+        });
+
+        // Initialize progress bar
+        function initProgressBar() {
+            progressSteps.innerHTML = '';
+            CAPTURE_STEPS.forEach((step, idx) => {
+                const div = document.createElement('div');
+                div.className = 'progress-step';
+                div.id = `step-${idx}`;
+                div.textContent = step.name;
+                progressSteps.appendChild(div);
+            });
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                // Request camera with optimal settings for mobile
+                const constraints = {
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                console.log('Camera started successfully');
+            } catch (error) {
+                console.error('Camera error:', error);
+                showStatus('❌ Camera access denied. Please allow camera permissions.', 'error');
+                
+                // Switch to upload mode
+                document.querySelector('input[value="upload"]').click();
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+        }
+
+        // Capture button
+        captureBtn.addEventListener('click', () => {
+            if (!isCapturing) {
+                startCapture();
+            }
+        });
+
+        // Start capture sequence
+        function startCapture() {
+            isCapturing = true;
+            snapshots = [];
+            snapshotsGrid.innerHTML = '';
+            currentStep = 0;
+            captureBtn.disabled = true;
+            captureBtn.textContent = '⏳ Capturing...';
+            submitBtn.disabled = true;
+
+            captureNextStep();
+        }
+
+        // Capture next step
+        function captureNextStep() {
+            if (currentStep >= CAPTURE_STEPS.length) {
+                completeCapture();
+                return;
+            }
+
+            const step = CAPTURE_STEPS[currentStep];
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+            
+            // Show instruction
+            instruction.textContent = step.instruction;
+
+            // Countdown
+            let countdown = 3;
+            const countInterval = setInterval(() => {
+                instruction.textContent = `${step.instruction} (${countdown}s)`;
+                countdown--;
+                
+                if (countdown < 0) {
+                    clearInterval(countInterval);
+                    captureFrame();
+                }
+            }, 1000);
+        }
+
+        // Capture frame
+        function captureFrame() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            canvas.toBlob(blob => {
+                snapshots.push(blob);
+                
+                // Show thumbnail
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                snapshotsGrid.appendChild(img);
+
+                // Mark step as complete
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                document.getElementById(`step-${currentStep}`).classList.add('completed');
+
+                currentStep++;
+                
+                setTimeout(() => {
+                    captureNextStep();
+                }, 500);
+            }, 'image/jpeg', 0.9);
+        }
+
+        // Complete capture
+        function completeCapture() {
+            isCapturing = false;
+            captureBtn.disabled = false;
+            captureBtn.textContent = '✅ Capture Complete';
+            submitBtn.disabled = false;
+            instruction.textContent = `✅ ${snapshots.length} photos captured! Ready to enroll.`;
+            showStatus(`✅ Successfully captured ${snapshots.length} photos!`, 'success');
+        }
+
+        // File input handler
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            uploadPreview.innerHTML = '';
+            
+            if (files.length >= 5) {
+                files.forEach(file => {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    uploadPreview.appendChild(img);
+                });
+                submitBtn.disabled = false;
+                showStatus(`✅ ${files.length} photos selected!`, 'success');
+            } else {
+                showStatus('❌ Please select at least 5 photos', 'error');
+                submitBtn.disabled = true;
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('phone', document.getElementById('phone').value || '');
+            formData.append('department', document.getElementById('department').value || '');
+
+            if (currentMethod === 'camera') {
+                if (snapshots.length < 5) {
+                    showStatus('❌ Please complete the capture process first', 'error');
+                    return;
+                }
+                snapshots.forEach((blob, i) => {
+                    formData.append('files', blob, `capture_${i}.jpg`);
+                });
+            } else {
+                const files = fileInput.files;
+                if (files.length < 5) {
+                    showStatus('❌ Please select at least 5 photos', 'error');
+                    return;
+                }
+                Array.from(files).forEach((file, i) => {
+                    formData.append('files', file, `upload_${i}.jpg`);
+                });
+            }
+
+            // Show loading
+            submitBtn.disabled = true;
+            btnText.innerHTML = '<span class="spinner"></span> Enrolling...';
+            showStatus('⏳ Processing enrollment... This may take a moment.', 'info');
+
+            try {
+                console.log('Submitting to:', `${API_BASE_URL}/api/enrollment/enroll`);
+                
+                const response = await fetch(`${API_BASE_URL}/api/enrollment/enroll`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData
+                });
+
+                console.log('Response status:', response.status);
+
+                const contentType = response.headers.get('content-type');
+                let data;
+
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Non-JSON response:', text);
+                    throw new Error('Server returned invalid response');
+                }
+
+                console.log('Response data:', data);
+
+                if (response.ok && data.success) {
+                    showStatus(`✅ ${data.message || 'Enrollment successful!'}`, 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/admin/dashboard.html';
+                    }, 2000);
+                } else {
+                    const errorMsg = data.message || data.msg || data.error || 'Enrollment failed';
+                    showStatus(`❌ ${errorMsg}`, 'error');
+                    submitBtn.disabled = false;
+                    btnText.textContent = '✅ Enroll';
+                }
+            } catch (error) {
+                console.error('Enrollment error:', error);
+                showStatus(`❌ Error: ${error.message}. Please check your connection.`, 'error');
+                submitBtn.disabled = false;
+                btnText.textContent = '✅ Enroll';
+            }
+        });
+
+        // Show status message
+        function showStatus(message, type) {
+            statusMsg.textContent = message;
+            statusMsg.className = `status-msg show ${type}`;
+            statusMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+        });
+
+        // Log page load
+        console.log('Face Enrollment Form Loaded');
+        console.log('API Base URL:', API_BASE_URL);
+    </script>
+</body>
+</html>
